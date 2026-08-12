@@ -1,0 +1,38 @@
+name: Build Aseprite for Windows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out Aseprite
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Install Ninja
+        uses: aseprite/get-ninja@main
+
+      - name: Set up MSVC
+        uses: TheMrMilchmann/setup-msvc-dev@v4
+        with:
+          arch: x64
+
+      - name: Build Aseprite
+        shell: bash
+        run: bash build.sh --auto --norun
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: aseprite-windows-x64
+          path: build/bin/
+          if-no-files-found: error
+          retention-days: 7
