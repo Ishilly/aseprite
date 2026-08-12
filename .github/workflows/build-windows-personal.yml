@@ -29,6 +29,21 @@ jobs:
         shell: bash
         run: bash build.sh --auto --norun
 
+      - name: Bundle OpenSSL runtime
+        shell: pwsh
+        run: |
+          $openSslBin = 'C:\Program Files\OpenSSL\bin'
+          $dlls = @('libcrypto-3-x64.dll', 'libssl-3-x64.dll')
+          foreach ($dll in $dlls) {
+            $source = Join-Path $openSslBin $dll
+            if (Test-Path -LiteralPath $source) {
+              Copy-Item -LiteralPath $source -Destination 'build\bin'
+            }
+          }
+          if (-not (Test-Path -LiteralPath 'build\bin\libcrypto-3-x64.dll')) {
+            throw 'Required OpenSSL runtime DLL was not found'
+          }
+
       - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
